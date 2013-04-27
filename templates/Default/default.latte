@@ -1,0 +1,92 @@
+
+
+{block #topText}
+<div class="content">
+    <p>
+        Dobrý den, vyplňte prosím registrační údaje a potvrďte svou účast na akci V.I.P 
+        UMBRO HAPPY DAYS, která se koná v termínu od 12.11.2012 do 23.12.2012.
+    </p>
+    <p>
+        Registrace na termín <b>{$event[start_date]|date:'j.n.Y'} - {$event[end_date]|date:'j.n.Y'}</b>
+    </p>
+</div>
+{/block}
+
+{block content}
+    
+
+
+    <div class="form-container">
+        
+        
+        {form registerForm}
+        
+            <fieldset>
+
+                <div class="input-box">
+                    {label main-name /}
+                    {input main-name}
+                </div>
+
+                <div class="input-box">
+                    {label main-surname /}
+                    {input main-surname}
+                </div>
+
+                <div class="input-box">
+                    {label main-email /}
+                    {input main-email}
+                </div>
+
+            </fieldset>
+
+            <h4>Můžete přizvat až 5 hostů</h4>
+            <fieldset>
+
+                {var $c = $form->getComponents()}
+                
+                {foreach $c as $component}
+                
+                
+                    {if $component->name == 'otherSections'}                
+                        {var $otherSections = $component->getComponents()}
+
+                        {foreach $otherSections as $section}
+                        
+
+                        <div class="input-set clearfix">
+
+                            <div class="input-box">
+                                {label 'otherSections-'.$section->name.'-name' /}
+                                {input 'otherSections-'.$section->name.'-name'}
+                            </div>
+
+                            <div class="input-box">
+                                {label 'otherSections-'.$section->name.'-surname' /}
+                                {input 'otherSections-'.$section->name.'-surname'}
+                            </div>
+                            
+                            <div class="input-box">
+                                {label 'otherSections-'.$section->name.'-email' /}
+                                {input 'otherSections-'.$section->name.'-email'}
+                            </div>
+                            
+                            
+                        </div>
+                
+                        {/foreach}
+                    {/if}
+                {/foreach}
+                
+              {input agree}{label agree /}
+                
+                
+              {input send}
+
+                    
+
+            </fieldset>
+            
+        {/form}
+    </div>
+

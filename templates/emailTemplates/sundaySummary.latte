@@ -1,0 +1,48 @@
+
+{dump $allRegistrations}
+
+{foreach $allRegistrations as $eventId => $event}
+
+
+    <h2>Termín: {$event[start_date]|date:'j.n.Y'} - {$event[end_date]|date:'j.n.Y'}</h2>
+    
+    {var $users = $event[user_id]}
+    {var $first = reset($users)}
+    
+    {if $first[user_id] != NULL}
+    
+    <table border="1" width="600">
+        <tr>
+            <th>
+                Příjmení
+            </th>
+            <th>
+                Jméno
+            </th>
+            <th>
+                Email
+            </th>
+        </tr>
+        {foreach $users as $userId => $user}
+        <tr>
+            <td>
+                {$user[surname]}
+            </td>
+            <td>
+                {$user[name]}
+            </td>
+            <td>
+                {$user[email]}
+            </td>
+        </tr>
+        
+        
+        {/foreach}
+    </table>
+
+
+    {else}
+    
+    {/if}
+
+{/foreach}

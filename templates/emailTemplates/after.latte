@@ -1,0 +1,36 @@
+
+
+    <h2>Pozdní registrace na termín: {$event[start_date]|date:'j.n.Y'} - {$event[end_date]|date:'j.n.Y'}</h2>
+    
+    {if !empty($regList)}
+    
+    <table border="1" width="600">
+        <tr>
+            <th>
+                Příjmení
+            </th>
+            <th>
+                Jméno
+            </th>
+            <th>
+                Email
+            </th>
+        </tr>
+        {foreach $regList as $user}
+        <tr>
+            <td>
+                {$user[surname]}
+            </td>
+            <td>
+                {$user[name]}
+            </td>
+            <td>
+                {$user[email]}
+            </td>
+        </tr>
+        
+        
+        {/foreach}
+    </table>
+    
+    {/if}
