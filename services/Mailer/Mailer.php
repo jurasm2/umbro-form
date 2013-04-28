@@ -15,10 +15,13 @@ class Mailer extends Nette\Object {
         
         $mail = new \Nette\Mail\Message();
         $mail->setFrom($from ?: 'umbro.cz <noreply@umbro.cz>')
-                ->addTo($to)
                 //->addTo('jurasm2@gmail.com')
                 ->setSubject($subject)
                 ->setHtmlBody($template);
+        
+        foreach ((array) $to as $email) {
+            $mail->addTo($email);
+        }
         
         // add attachments
         foreach ($attachments as $a) {

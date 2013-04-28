@@ -5,7 +5,7 @@ namespace Components\Forms;
 use Nette,
     Nette\Application\UI\Form;
 
-class RegisterForm extends BaseForm {
+class SpringTimeRegisterForm extends BaseForm {
 
     public function __construct($parent, $name) {
         parent::__construct($parent, $name);        
@@ -65,51 +65,27 @@ class RegisterForm extends BaseForm {
         $this->onSuccess[] = array($this, 'formSubmited');  
         
     }
-
-
+    
     
     public function formSubmited($form) {
         $values = $form->getValues();
-
+       
         $errors = array();
         
         $mainError = FALSE;
-        
-        
-        $cronFlags = $this->presenter->umbroModel->getEventMailingFlags();
         
         //dump($cronFlags);
         // process main section
         $main = $values['main'];
         $main['event_id'] = $values['event_id'];
-        $main['mailing1_sent'] = (isset($cronFlags[$values['event_id']])) ? $cronFlags[$values['event_id']]['mailing1_sent'] : 0;
-        $main['mailing2_sent'] = (isset($cronFlags[$values['event_id']])) ? $cronFlags[$values['event_id']]['mailing2_sent'] : 0;
-        
-        $afterReg = $main['mailing1_sent'] == 1;
-        $afterRegList = array();
-        
-        $event = $this->presenter->umbroModel->findEventByHash($this->presenter->getParam('hash'));
+        $main['signoff_hash'] = sha1(serialize($main));
+        $main['is_active'] = 1;
         
         try {
-            
-            $this->presenter->umbroModel->registerUser($main);
+            $this->presenter->umbroModel->registerUser($main);   
             
             // send confirm mail
-            $template = new \Nette\Templating\FileTemplate(APP_DIR . '/templates/emailTemplates/confirm.latte');
-            $template->registerFilter(new Nette\Latte\Engine);
-            $template->registerHelperLoader('Nette\Templating\Helpers::loader');
-            $attachments = array(
-                            WWW_DIR . '/attachments/vip-pozvanka-termin-'.$event['event_id'].'.pdf',
-                            WWW_DIR . '/attachments/pruvodni-dopis.pdf'
-            );
-            $template->basePath = $this->presenter->baseUri;
-            $template->event = $event;
-            $this->presenter->mailerService->sendMail($main['email'], $template, 'Úspěšná registrace na V.I.P. UMBRO HAPPY DAYS', NULL, $attachments);
-            
-            // if start of the registration is over -> send mail to factorystore@umbro.cz
-            if ($afterReg) {
-                $afterRegList[] = $main;
-            }
+            $this->presenter->sendConfirmMail($main['email']);
         } catch (\DibiDriverException $e) {
             $errors[] = $main['email'];
             $mainError = TRUE;
@@ -120,28 +96,14 @@ class RegisterForm extends BaseForm {
             // process other sections
             foreach ($values['otherSections'] as $section) {
                 $section['event_id'] = $values['event_id'];
-                $section['mailing1_sent'] = (isset($cronFlags[$values['event_id']])) ? $cronFlags[$values['event_id']]['mailing1_sent'] : 0;
-                $section['mailing2_sent'] = (isset($cronFlags[$values['event_id']])) ? $cronFlags[$values['event_id']]['mailing2_sent'] : 0;
+                $section['signoff_hash'] = sha1(serialize($section));
+                $section['is_active'] = 1;
                 if (!empty($section['email'])) {
                     try {
                         $this->presenter->umbroModel->registerUser($section);
                         
                         // send confirm mail
-                        $template = new \Nette\Templating\FileTemplate(APP_DIR . '/templates/emailTemplates/confirm.latte');
-                        $template->registerFilter(new Nette\Latte\Engine);
-                        $template->registerHelperLoader('Nette\Templating\Helpers::loader');
-                        $attachments = array(
-                                        WWW_DIR . '/attachments/vip-pozvanka-termin-'.$event['event_id'].'.pdf',
-                                        WWW_DIR . '/attachments/pruvodni-dopis.pdf'
-                        );
-                        $template->basePath = $this->presenter->baseUri;
-                        $template->event = $event;
-                        $this->presenter->mailerService->sendMail($section['email'], $template, 'Úspěšná registrace na V.I.P. UMBRO HAPPY DAYS', NULL, $attachments);
-                        
-                        if ($afterReg) {
-                            $afterRegList[] = $section;
-                        }
-                        
+                        $this->presenter->sendConfirmMail($section['email']);
                     } catch (\DibiDriverException $e) {
                         $errors[] = $section['email'];
                     }
@@ -150,33 +112,15 @@ class RegisterForm extends BaseForm {
             }
         
         }
+       
         
-        // process after registration
-        if ($afterReg) {
-            
-            
-            // if registration expired -> send mail to factorystore@umbro.cz
-            $template = new \Nette\Templating\FileTemplate(APP_DIR . '/templates/emailTemplates/after.latte');
-            $template->registerFilter(new Nette\Latte\Engine);
-            $template->registerHelperLoader('Nette\Templating\Helpers::loader');
-            
-            $template->regList = $afterRegList;
-            $template->basePath = $this->presenter->baseUri;
-            $template->event = $event;
-            // change to factorystore@umbro.cz
-
-            $this->presenter->mailerService->sendMail('factorystore@umbro.cz', $template, 'Pozdní registrace na V.I.P. UMBRO HAPPY DAYS');
+        
+        if (!empty($errors)) {
+            $this->presenter->flashMessage('Uvedené emaily už jsou zaregistrovány', 'error');
+        } else {
+            $this->presenter->flashMessage('Vaše registrace byla úspěšně zpracována');
+            $this->presenter->redirect('sent', array('eventId' => 6));
         }
-        
-        
-        
-        $this->presenter->flashMessage('Vaše registrace byla úspěšně zpracována');
-        
-//        if (!empty($errors)) {
-//            $this->presenter->flashMessage('Uvedené emaily už jsou zaregistrovány', 'error');
-//        } else {
-//        }
-        $this->presenter->redirect('sent', array('eventId' => $event['event_id']));
         
     }
     

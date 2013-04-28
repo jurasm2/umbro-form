@@ -9,9 +9,73 @@ class DefaultPresenter extends BasePresenter {
     private $event = NULL;
     
     public function createComponentRegisterForm($name) {
-        return new Components\Forms\RegisterForm($this, $name);
+        return new Components\Forms\SpringTimeRegisterForm($this, $name);
         
     }
+    
+    /**
+     * Sign off of a user
+     * @param string $signoffHash
+     */
+    public function actionSignOff($signoffHash) {
+        $user = $this->umbroModel->getUserBySignoffHash($signoffHash);
+
+        if (!$user) {
+            $this->flashMessage('Neplatný kód', 'error');
+            $this->redirect(301, 'blank');
+        }
+        
+        if (!$user['is_active']) {
+            $this->flashMessage('Váš email byl již odstraněn z naší databáze', 'error');
+            $this->redirect(301, 'blank');
+        }
+        
+        $this->presenter->umbroModel->signOffUser($user['user_id']);
+        $this->flashMessage('Váš email byl odstraněn z naší databáze');
+        $this->redirect(301, 'blank');
+        
+    }
+    
+    /**
+     * Quick sign in of a member
+     * @param type $signinHash
+     */
+    public function actionSignIn($signinHash) {
+        $user = $this->umbroModel->getUserBySigninHash($signinHash);
+
+        if (!$user) {
+            $this->flashMessage('Neplatný kód', 'error');
+            $this->redirect(301, 'blank');
+        }
+        
+        if ($user['is_active']) {
+            $this->flashMessage('Váš email je již registrován');
+            $this->redirect(301, 'blank');
+        }
+        
+        $this->presenter->umbroModel->signInUser($user['user_id']);
+        $this->flashMessage('Váš email byl úspěšně registrován');
+        $this->sendConfirmMail($user['email']);
+        $this->redirect(301, 'blank');
+        
+        
+    }
+    
+    public function sendConfirmMail($email) {
+         // send confirm mail
+        $templateParams = array(
+                            'basePath'  =>  $this->presenter->baseUri
+        );
+        
+        $attachments = array(
+                        WWW_DIR . '/attachments/vip-pozvanka-2013.pdf',
+                        WWW_DIR . '/attachments/pruvodni-dopis.doc'
+        );
+        
+        $this->sendUserMail($email, 'confirm.latte', 'Úspěšná registrace na V.I.P. UMBRO SPRINGTIME', $templateParams, $attachments);
+    }
+    
+    
     
     public function renderSent($eventId) {
         
@@ -21,21 +85,8 @@ class DefaultPresenter extends BasePresenter {
         
     }
     
-	public function renderDefault($hash) {
-        
-//        dump($hash);
-//        die();
-        
-        $array = array();
-        
-        
-//        for ($i = 1; $i <= 5; $i++) {
-//            $array['obdobi'.$i] = sha1('obdobi'.$i);
-//        }
-//        
-//        dump($array);
-//        die();
-        
+    public function renderDefault($hash) {
+
         if (!$hash) {
             throw new Nette\Application\BadRequestException('No hash provided');
         }
