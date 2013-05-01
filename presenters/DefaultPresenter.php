@@ -85,7 +85,7 @@ class DefaultPresenter extends BasePresenter {
         
     }
     
-    public function renderDefault($hash) {
+    public function renderDefault($hash = 2013) {
 
         if (!$hash) {
             throw new Nette\Application\BadRequestException('No hash provided');

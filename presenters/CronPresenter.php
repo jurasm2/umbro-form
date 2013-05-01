@@ -92,13 +92,15 @@ class CronPresenter extends BasePresenter {
         
         // configure lister 
         Components\Lister::$verbose = TRUE;
-        Components\Lister::$limit = 200;
+        Components\Lister::$limit = 50;
         
         switch ($mailingId) {
             case 1: // mailing1
+		die("Mailing 1 is dead");
                 $this['lister']->run('mailing1', callback($this, 'sendMailing1Callback'));
                 break;
             case 2: // mailing2
+		die("Mailing 2 is dead");
                 $this['lister']->run('mailing2', callback($this, 'sendMailing2Callback'));
                 break;
             case 3: // mailing3 TODO
@@ -115,8 +117,10 @@ class CronPresenter extends BasePresenter {
     
     public function actionSendInvitation() {
         
+	die('Invitation is dead');
+	
         Components\Lister::$verbose = TRUE;
-        Components\Lister::$limit = 200;
+        Components\Lister::$limit = 50;
         
         $this['lister']->run('invitation', callback($this, 'sendInvitationCallback'));
         die();

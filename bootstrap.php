@@ -39,11 +39,11 @@ $container = $configurator->createContainer();
 
 // Setup router
 //$container->router[] = new Route('test', 'Cron:test');
-$container->router[] = new Route('cli', 'Cli:default'); // useless
+//$container->router[] = new Route('cli', 'Cli:default'); // useless
 $container->router[] = new Route('blank', 'Default:blank'); // sigh off redirect
-$container->router[] = new Route('signoff/[<signoffHash>]', 'Default:signoff');
-$container->router[] = new Route('signin/[<signinHash>]', 'Default:signin');
-$container->router[] = new Route('mailing/[<mailingId>]', 'Cron:sendMailing');
+$container->router[] = new Route('signoff/<signoffHash>', 'Default:signoff');
+$container->router[] = new Route('signin/<signinHash>', 'Default:signin');
+$container->router[] = new Route('mailing/<mailingId>', 'Cron:sendMailing');
 $container->router[] = new Route('invitation', 'Cron:sendInvitation');
 $container->router[] = new Route('reset', 'Cli:reset');
 

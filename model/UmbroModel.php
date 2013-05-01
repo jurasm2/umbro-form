@@ -174,13 +174,17 @@ final class UmbroModel extends BaseModel {
         
     }
     
+    public function getNumberOfUsersWithoutSignInCode() {
+	return $this->connection->fetchSingle('SELECT COUNT(*) FROM [reg_users] WHERE [signin_hash] IS NULL');
+    }
+    
     public function getNumberOfAllUsers($onlyActive = FALSE) {
         return $this->connection->fetchSingle('SELECT COUNT(*) FROM [reg_users] %if WHERE [is_active] = 1', $onlyActive);
     }
     
     // invitation part    
     public function getUninvitedUsers($limit) {
-        return $this->connection->query('SELECT * FROM [reg_users] WHERE [invitation_sent] = 0 LIMIT %i', $limit)->fetchAssoc('user_id');
+        return $this->connection->query('SELECT * FROM [reg_users] WHERE [invitation_sent] = 0 AND [signin_hash] IS NOT NULL LIMIT %i', $limit)->fetchAssoc('user_id');
     }
     
     public function setInvitationMailingAsSent($userIds) {
