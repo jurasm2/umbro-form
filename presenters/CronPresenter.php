@@ -109,7 +109,7 @@ class CronPresenter extends BasePresenter {
     }
     
     public function sendSorryCallback($limit) {
-	return $this->_sendGenericMailing('sorry_sent', 'sorry.latte', $limit, 'Sorry..');
+	return $this->_sendGenericMailing('sorry_sent', 'sorry.latte', $limit, 'UMBRO Springtime - změna termínu akce');
 	//return $this->_sendGenericTestMailing('sorry_sent', 'sorry.latte', 1306, 'Sorry test..');
     }
     
