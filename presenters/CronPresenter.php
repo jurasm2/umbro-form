@@ -28,7 +28,7 @@ class CronPresenter extends BasePresenter {
      * Fetches limited number of users
      * and send particular emails (by flag name)
      * 
-     * @param string $flagName (mailing1|mailing2|mailing3)
+     * @param string $flagName (mailing1_sent|mailing2_sent|mailing3_sent|sorry_sent)
      * @param string $templateName
      * @param int $limit
      * @return array
@@ -37,6 +37,26 @@ class CronPresenter extends BasePresenter {
         // get number of all ACTIVE members
         $total = $this->umbroModel->getNumberOfAllUsers(TRUE);
         $users = $this->presenter->umbroModel->getUsersForMailing($flagName, $limit);
+        
+        $numOfUsers = 0;
+        if ($users) {
+            $this->presenter->umbroModel->setMailingAsSent($flagName, array_keys($users));
+           
+            foreach ($users as $user) {  
+                $this->_sendUserMail($user, $templateName, $subject);
+                $numOfUsers++;
+            } 
+        }
+        
+        return array($numOfUsers, $total);
+    }
+    
+    
+    public function _sendGenericTestMailing($flagName, $templateName, $ids, $subject) {
+	
+	// get number of all ACTIVE members
+        $total = count((array) $ids);
+        $users = $this->presenter->umbroModel->getTestUsersFormMailing($flagName, $ids);
         
         $numOfUsers = 0;
         if ($users) {
@@ -88,6 +108,11 @@ class CronPresenter extends BasePresenter {
         return array($numOfUsers, $total);
     }
     
+    public function sendSorryCallback($limit) {
+	return $this->_sendGenericMailing('sorry_sent', 'sorry.latte', $limit, 'Sorry..');
+	//return $this->_sendGenericTestMailing('sorry_sent', 'sorry.latte', 1306, 'Sorry test..');
+    }
+    
     public function actionSendMailing($mailingId) {
         
         // configure lister 
@@ -107,6 +132,10 @@ class CronPresenter extends BasePresenter {
                 echo "Mailing 3 is not ready yet";
                 //$this['lister']->run('mailing3', callback($this, 'sendMailing3Callback'));
                 break;
+	    case 'sorry':
+		die("Sorry mailing is dead");
+                $this['lister']->run('sorry_mailing', callback($this, 'sendSorryCallback'));
+                break;
             default:
                 echo "No such mailing"; 
         }
@@ -123,6 +152,18 @@ class CronPresenter extends BasePresenter {
         Components\Lister::$limit = 50;
         
         $this['lister']->run('invitation', callback($this, 'sendInvitationCallback'));
+        die();
+        
+    }
+    
+    public function actionSendInvitation2() {
+        
+	die('Invitation is dead');
+	
+        Components\Lister::$verbose = TRUE;
+        Components\Lister::$limit = 50;
+        
+        $this['lister']->run('invitation2', callback($this, 'sendInvitationCallback'));
         die();
         
     }

@@ -214,6 +214,11 @@ final class UmbroModel extends BaseModel {
     public function getUsersForMailing($flagName, $limit) {
         return $this->connection->query('SELECT * FROM [reg_users] WHERE %n = 0 AND [is_active] = 1 LIMIT %i', $flagName, $limit)->fetchAssoc('user_id');
     }
+
+    // for test pusposes
+    public function getTestUsersFormMailing($flagName, $ids) {
+	return $this->connection->query('SELECT * FROM [reg_users] WHERE %n = 0 AND [user_id] IN %in', $flagName, (array) $ids)->fetchAssoc('user_id');
+    }
     
     public function setMailingAsSent($flagName, $userIds) {        
         return $this->connection->query('UPDATE [reg_users] SET %n = 1 WHERE [user_id] IN %in', $flagName, $userIds);
