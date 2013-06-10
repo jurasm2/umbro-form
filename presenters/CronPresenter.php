@@ -110,7 +110,10 @@ class CronPresenter extends BasePresenter {
     
     public function sendSorryCallback($limit) {
 	return $this->_sendGenericMailing('sorry_sent', 'sorry.latte', $limit, 'UMBRO Springtime - změna termínu akce');
-	//return $this->_sendGenericTestMailing('sorry_sent', 'sorry.latte', 1306, 'Sorry test..');
+    }
+    
+    public function sendFloodingCallback($limit) {
+	return $this->_sendGenericMailing('flooding_sent', 'flooding.latte', $limit, 'Iinformace k akci V.I.P. UMBRO SPRINGTIME');
     }
     
     public function actionSendMailing($mailingId) {
@@ -133,8 +136,12 @@ class CronPresenter extends BasePresenter {
                 //$this['lister']->run('mailing3', callback($this, 'sendMailing3Callback'));
                 break;
 	    case 'sorry':
-		die("Sorry mailing is dead");
+		//die("Sorry mailing is dead");
                 $this['lister']->run('sorry_mailing', callback($this, 'sendSorryCallback'));
+                break;
+	    case 'flooding':
+		//die("Flooding mailing is dead");
+                $this['lister']->run('flooding_mailing', callback($this, 'sendFloodingCallback'));
                 break;
             default:
                 echo "No such mailing"; 
